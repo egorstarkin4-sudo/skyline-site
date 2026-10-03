@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Панель настройки параметров сайта Skyline — изменение названия, цветовой палитры, цен и описания тарифов.">
+  <title>Skyline | Настройки сайта</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="shortcut icon" type="image/png" href="assets/logo.png">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+
+  <!-- Launcher Font & Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    .settings-page-wrap {
+      max-width: 980px;
+      margin: calc(var(--header-height) + 24px) auto 60px auto;
+      padding: 0 20px;
+    }
+    .settings-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .settings-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-md);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .settings-card-header {
+      margin-bottom: 20px;
+    }
+    .settings-card-header h2 {
+      font-size: 16px;
+      font-family: var(--font-bold);
+      color: #fff;
+    }
+    .settings-card-header p {
+      font-size: 12.5px;
+      color: var(--text-color-grayed);
+      margin-top: 3px;
+    }
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 680px) {
+      .form-grid-2 { grid-template-columns: 1fr; }
+    }
+    .themes-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 800px) {
+      .themes-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 500px) {
+      .themes-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .theme-card-option {
+      background: #0d0d10;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-sm);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      user-select: none;
+    }
+    .theme-card-option:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-2px);
+    }
+    .theme-card-option.active {
+      border-color: var(--accent-color);
+      background: #15141c;
+      box-shadow: 0 0 16px rgba(139, 92, 246, 0.2);
+    }
+    .theme-swatch-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+    .theme-name {
+      font-size: 11.5px;
+      text-align: center;
+      color: var(--text-color);
+      font-family: var(--font-bold);
+    }
+    .plans-settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 720px) {
+      .plans-settings-grid { grid-template-columns: 1fr; }
+    }
+    .plan-setting-item {
+      background: #0d0d10;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-sm);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .plan-setting-title {
+      font-family: var(--font-bold);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .plan-badge-tag {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: #18181c;
+      border: 1px solid var(--border-color);
+      color: var(--text-color-grayed);
+    }
+    .settings-bottom-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient Plasma Glowing Orbs -->
+  <div class="ambient-glow-layer" aria-hidden="true">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
+  <!-- Site Navigation Header -->
+  <header class="site-header" id="mainHeader">
+    <div class="header-inner">
+      <div class="header-brand" onclick="location.href='index.html'" style="cursor:pointer;">
+        <img class="header-logo-img" src="assets/logo.png" alt="Skyline Logo">
+        <div class="header-brand-title">
+          <span>SKYLINE</span>
+          <span class="header-badge">Site Settings</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <button type="button" onclick="location.href='index.html'" data-i18n="nav_home">Главная</button>
+        <button type="button" onclick="location.href='admin.html'" data-i18n="nav_admin_panel">Админ-панель</button>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <div class="lang-switcher" role="group" aria-label="Language Selector">
+          <button type="button" class="lang-btn active" data-lang="ru">RU</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+
+        <button type="button" class="btn-outline" onclick="location.href='admin.html'">
+          <i class="bi bi-arrow-left"></i>
+          <span data-i18n="settings_back_admin">В админку</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Settings Page Wrapper -->
+  <main class="settings-page-wrap">
+    
+    <!-- State 1: Checking permissions -->
+    <div id="settingsLoadingCheck" class="settings-card" style="text-align:center; padding:50px 20px;">
+      <div class="btn-loader" style="width:32px; height:32px; border-width:3px; margin:0 auto 16px auto;"></div>
+      <h2 data-i18n="admin_loading_title">Проверка прав доступа...</h2>
+      <p style="color:var(--text-color-grayed); font-size:13px; margin-top:6px;" data-i18n="admin_loading_desc">Пожалуйста, подождите, проверяем статус учетной записи.</p>
+    </div>
+
+    <!-- State 2: Access Denied -->
+    <div id="settingsAccessDenied" class="settings-card" style="display:none; text-align:center; padding:50px 20px;">
+      <i class="bi bi-shield-x" style="font-size:42px; color:#f87171; margin-bottom:14px; display:inline-block;"></i>
+      <h2 data-i18n="admin_denied_title">Доступ ограничен</h2>
+      <p style="color:var(--text-color-grayed); font-size:13.5px; margin:8px auto 20px auto; max-width:440px;" data-i18n="admin_denied_desc">
+        Эта страница предназначена исключительно для администраторов Skyline.<br>Войдите под учетной записью с правами администратора.
+      </p>
+      <button type="button" class="btn-fill" onclick="location.href='profile.html'" data-i18n="admin_denied_btn">
+        Вернуться в личный кабинет
+      </button>
+    </div>
+
+    <!-- State 3: Settings Form Content -->
+    <div id="settingsContent" style="display:none;">
+      <div class="settings-header-row">
+        <div>
+          <h1 style="font-size:22px; font-family:var(--font-bold); display:flex; align-items:center; gap:8px;">
+            <i class="bi bi-sliders" style="color:var(--accent-color);"></i>
+            <span data-i18n="settings_page_title">Настройки сайта</span>
+          </h1>
+          <p style="color:var(--text-color-grayed); font-size:13px; margin-top:2px;" data-i18n="settings_page_subtitle">
+            Управление названием, цветовой палитрой, ценами и описаниями тарифов проекта
+          </p>
+        </div>
+        <button type="button" class="btn-outline" onclick="location.href='admin.html'">
+          <i class="bi bi-arrow-left"></i>
+          <span data-i18n="settings_back_admin">Назад в админ-панель</span>
+        </button>
+      </div>
+
+      <!-- Card 1: Brand & Hero Configuration -->
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <h2 data-i18n="settings_brand_title"><i class="bi bi-tag-fill"></i> Название и Главный экран</h2>
+          <p data-i18n="settings_brand_desc">Отображение бренда в шапке, подвале и главном баннере главной страницы</p>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label for="cfgSiteName" data-i18n="settings_lbl_sitename">Название проекта (Бренд)</label>
+            <input type="text" id="cfgSiteName" class="input-dark" placeholder="Например: SKYLINE">
+          </div>
+          <div class="form-group">
+            <label for="cfgHeroTitle" data-i18n="settings_lbl_herotitle">Главный заголовок Hero</label>
+            <input type="text" id="cfgHeroTitle" class="input-dark" placeholder="Приватный Чит Нового Поколения <span>Skyline</span>">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:12px;">
+          <label for="cfgHeroDesc" data-i18n="settings_lbl_herodesc">Описание на главном экране (Hero)</label>
+          <textarea id="cfgHeroDesc" class="input-dark" style="height:80px; padding:10px 14px; resize:vertical;" placeholder="Доминируйте на серверах с помощью продвинутого чит-клиента Skyline. Умная Killaura, точный ESP/Wallhack, обходы современных античитов и настраиваемый HUD."></textarea>
+        </div>
+      </div>
+
+      <!-- Card 2: Color Themes Palette -->
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <h2 data-i18n="settings_theme_title"><i class="bi bi-palette-fill"></i> Цветовая тема оформления</h2>
+          <p data-i18n="settings_theme_desc">Выберите акцентную палитру — цвет применится ко всем страницам, кнопкам, свечению и элементам</p>
+        </div>
+
+        <div class="themes-grid" id="themesGrid">
+          <!-- Swatches generated dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- Card 3: Pricing & Plan Descriptions -->
+      <div class="settings-card">
+        <div class="settings-card-header">
+          <h2 data-i18n="settings_plans_title"><i class="bi bi-gem"></i> Тарифные планы и Цены</h2>
+          <p data-i18n="settings_plans_desc">Настройте стоимость и краткие описания карточек в блоке покупки на главной странице</p>
+        </div>
+
+        <div class="plans-settings-grid">
+          <!-- Plan: HWID Reset -->
+          <div class="plan-setting-item">
+            <div class="plan-setting-title">
+              <span data-i18n="plan_reset_title">Сброс HWID</span>
+              <span class="plan-badge-tag">Reset</span>
+            </div>
+            <div class="form-group">
+              <label data-i18n="settings_lbl_price">Цена</label>
+              <input type="text" id="cfgPriceReset" class="input-dark" placeholder="100 ₽">
+            </div>
+            <div class="form-group">
+              <label data-i18n="settings_lbl_desc">Описание тарифа</label>
+              <input type="text" id="cfgDescReset" class="input-dark" placeholder="Отвязка от старого ПК для переноса на новое устройство">
+            </div>
+          </div>
+
+          <!-- Plan: 30 Days -->
+          <div class="plan-setting-item">
+            <div class="plan-setting-title">
+              <span data-i18n="plan_30d_title">30 Дней</span>
+              <span class="plan-badge-tag">1 Month</span>
+            </div>
+            <div class="form-group">
+              <label data-i18n="settings_lbl_price">Цена</label>
+              <input type="text" id="cfgPrice30d" class="input-dark" placeholder="150 ₽">
+            </div>
+            <div class="form-group">
+              <label data-i18n="settings_lbl_desc">Описание тарифа</label>
+              <input type="text" id="cfgDesc30d" class="input-dark" placeholder="Базовый доступ к чит-клиенту на 1 месяц">
+            </div>
+          </div>
+
+          <!-- Plan: 1 Year -->
+          <div class="plan-setting-item">
+            <div class="plan-setting-title">
+              <span data-i18n="plan_1yr_title">1 Год</span>
+              <span class="plan-badge-tag">365 Days</span>
+            </div>
+            <div class="form-group">
+              <label data-i18n="settings_lbl_price">Цена</label>
+              <input type="text" id="cfgPrice1yr" class="input-dark" placeholder="250 ₽">
+            </div>
+            <div class="form-group">
+              <label data-i18n="settings_lbl_desc">Описание тарифа</label>
+              <input type="text" id="cfgDesc1yr" class="input-dark" placeholder="Выгодный доступ ко всем модулям чита на 365 дней">
+            </div>
+          </div>
+
+          <!-- Plan: Lifetime -->
+          <div class="plan-setting-item">
+            <div class="plan-setting-title">
+              <span data-i18n="plan_life_title">Навсегда</span>
+              <span class="plan-badge-tag" style="background:var(--accent-color); color:#fff;">Featured</span>
+            </div>
+            <div class="form-group">
+              <label data-i18n="settings_lbl_price">Цена</label>
+              <input type="text" id="cfgPriceLife" class="input-dark" placeholder="400 ₽">
+            </div>
+            <div class="form-group">
+              <label data-i18n="settings_lbl_desc">Описание тарифа</label>
+              <input type="text" id="cfgDescLife" class="input-dark" placeholder="Полный пожизненный доступ ко всем обновлениям чита и обходам">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Bar -->
+      <div class="settings-bottom-actions">
+        <button type="button" class="btn-outline" id="btnResetDefaults" data-i18n="settings_btn_reset">
+          <i class="bi bi-arrow-counterclockwise"></i>
+          <span>Восстановить стандартные</span>
+        </button>
+        <button type="button" class="btn-fill" id="btnSaveSiteSettings" style="height:46px; padding:0 24px;" data-i18n="settings_btn_save">
+          <i class="bi bi-floppy2-fill"></i>
+          <span>Сохранить и применить</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Toast Modal -->
+  <div class="modal-overlay" id="settingsToastModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <span class="modal-title" id="settingsToastTitle">Уведомление</span>
+        <button type="button" class="modal-close-btn" id="btnSettingsToastClose">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="settingsToastMsg" style="color:var(--text-color-grayed); font-size:13.5px;">Настройки успешно сохранены!</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-fill" id="btnSettingsToastCloseAlt" onclick="document.getElementById('settingsToastModal').classList.remove('active')" data-i18n="admin_toast_close">
+          Понятно
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand" onclick="location.href='index.html'" style="cursor:pointer;">
+        <img src="assets/logo.png" alt="Skyline" style="width:20px; height:20px; border-radius:6px;">
+        <span style="font-family:var(--font-bold); font-size:13px;">SKYLINE SETTINGS</span>
+      </div>
+      <div class="footer-copy" data-i18n="admin_footer_copy">
+        &copy; 2026 Skyline. Панель управления администратора.
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    const THEMES = [
+      { id: 'purple', nameRu: 'Фиолетовый (Launcher Violet)', nameEn: 'Launcher Violet', gradient: 'linear-gradient(135deg, #8b5cf6, #5b21b6)' },
+      { id: 'white', nameRu: 'Серебро (Cyber-Silver)', nameEn: 'Cyber-Silver', gradient: 'linear-gradient(135deg, #ffffff, #94a3b8)' },
+      { id: 'red', nameRu: 'Красный (Crimson Flame)', nameEn: 'Crimson Flame', gradient: 'linear-gradient(135deg, #ef4444, #991b1b)' },
+      { id: 'blue', nameRu: 'Синий (Royal Cobalt)', nameEn: 'Royal Cobalt', gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' },
+      { id: 'green', nameRu: 'Зелёный (Toxic Emerald)', nameEn: 'Toxic Emerald', gradient: 'linear-gradient(135deg, #10b981, #047857)' },
+      { id: 'cyan', nameRu: 'Голубой (Neon Aqua)', nameEn: 'Neon Aqua', gradient: 'linear-gradient(135deg, #06b6d4, #0e7490)' },
+      { id: 'pink', nameRu: 'Розовый (Hot Magenta)', nameEn: 'Hot Magenta', gradient: 'linear-gradient(135deg, #ec4899, #be185d)' },
+      { id: 'gold', nameRu: 'Золотой (Amber Royale)', nameEn: 'Amber Royale', gradient: 'linear-gradient(135deg, #f59e0b, #b45309)' },
+      { id: 'orange', nameRu: 'Оранжевый (Blaze Lava)', nameEn: 'Blaze Lava', gradient: 'linear-gradient(135deg, #f97316, #c2410c)' },
+      { id: 'violet', nameRu: 'Ультрафиолет (Ultra Violet)', nameEn: 'Ultra Violet', gradient: 'linear-gradient(135deg, #7c3aed, #4c1d95)' }
+    ];
+
+    let selectedThemeId = 'purple';
+
+    function t(key) {
+      if (window.getLangString) return window.getLangString(key);
+      const l = localStorage.getItem('skyline_lang') || localStorage.getItem('shape_lang') || 'ru';
+      return (window.TRANSLATIONS && window.TRANSLATIONS[l] && window.TRANSLATIONS[l][key]) || key;
+    }
+
+    async function initSettingsPage() {
+      const SUPABASE_URL = "https://cvincrtbliwmjlxloczi.supabase.co";
+      const SUPABASE_KEY = "sb_publishable_HZuArEdxGLbmsv7t2tUQng_GYW5vSLz";
+      let sb = null;
+      if (typeof window.supabase !== "undefined") {
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      }
+
+      const loadingCheck = document.getElementById('settingsLoadingCheck');
+      const accessDenied = document.getElementById('settingsAccessDenied');
+      const settingsContent = document.getElementById('settingsContent');
+
+      function showDenied() {
+        if (loadingCheck) loadingCheck.style.display = 'none';
+        if (accessDenied) accessDenied.style.display = 'block';
+        if (settingsContent) settingsContent.style.display = 'none';
+      }
+
+      function showSettings() {
+        if (loadingCheck) loadingCheck.style.display = 'none';
+        if (accessDenied) accessDenied.style.display = 'none';
+        if (settingsContent) settingsContent.style.display = 'block';
+      }
+
+      const withTimeout = (promise, ms = 2000) => {
+        return Promise.race([
+          promise,
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+        ]);
+      };
+
+      try {
+        if (!sb) { showDenied(); return; }
+
+        let user = null;
+        try {
+          const { data } = await withTimeout(sb.auth.getUser(), 1500);
+          user = data?.user;
+        } catch (e) {}
+
+        if (!user) {
+          try {
+            const { data } = await withTimeout(sb.auth.getSession(), 1500);
+            user = data?.session?.user;
+          } catch(e) {}
+        }
+
+        if (!user) {
+          try {
+            const raw = localStorage.getItem('sb-cvincrtbliwmjlxloczi-auth-token');
+            if (raw) {
+              const val = JSON.parse(raw);
+              user = val?.user || val?.currentSession?.user;
+            }
+          } catch (e) {}
+        }
+
+        if (!user) { showDenied(); return; }
+
+        const email = user.email ? user.email.trim().toLowerCase() : '';
+        const isMasterAdmin = (email === 'gorwok.h@yandex.ru' || email === 'fakeface52@mail.ru');
+        let isAdmin = isMasterAdmin;
+
+        if (!isAdmin) {
+          try {
+            const { data: adminRow } = await withTimeout(
+              sb.from('admins').select('user_id').eq('user_id', user.id).maybeSingle(),
+              2000
+            );
+            if (adminRow && adminRow.user_id) {
+              isAdmin = true;
+            }
+          } catch (e) {}
+        }
+
+        if (!isAdmin) { showDenied(); return; }
+
+        showSettings();
+      } catch (err) {
+        console.error("Admin check error:", err);
+        showDenied();
+        return;
+      }
+
+      function renderThemesGrid() {
+        const grid = document.getElementById('themesGrid');
+        if (!grid) return;
+        const currentL = localStorage.getItem('skyline_lang') || localStorage.getItem('shape_lang') || 'ru';
+
+        grid.innerHTML = THEMES.map(th => {
+          const isActive = th.id === selectedThemeId;
+          const label = currentL === 'en' ? th.nameEn : th.nameRu;
+          return `
+            <div class="theme-card-option ${isActive ? 'active' : ''}" data-theme-id="${th.id}">
+              <div class="theme-swatch-circle" style="background:${th.gradient};"></div>
+              <div class="theme-name">${label}</div>
+            </div>
+          `;
+        }).join('');
+
+        grid.querySelectorAll('.theme-card-option').forEach(card => {
+          card.addEventListener('click', () => {
+            selectedThemeId = card.getAttribute('data-theme-id');
+            grid.querySelectorAll('.theme-card-option').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            
+            if (window.applyThemePreset) {
+              window.applyThemePreset(selectedThemeId);
+            }
+          });
+        });
+      }
+
+      async function loadSettings() {
+        let currentCfg = window.DEFAULT_SITE_CONFIG || {
+          siteName: 'SKYLINE',
+          heroTitle: 'Приватный Чит Нового Поколения <span>Skyline</span>',
+          heroDesc: 'Доминируйте на серверах с помощью продвинутого чит-клиента Skyline. Умная Killaura, точный ESP/Wallhack, обходы современных античитов и настраиваемый HUD. Разработано для Fabric 1.21.4.',
+          theme: 'purple',
+          plans: {
+            reset: { price: '100 ₽', desc: 'Отвязка от старого ПК для переноса на новое устройство' },
+            d30: { price: '150 ₽', desc: 'Базовый доступ к чит-клиенту на 1 месяц' },
+            y1: { price: '250 ₽', desc: 'Выгодный доступ ко всем модулям чита на 365 дней' },
+            life: { price: '400 ₽', desc: 'Полный безлимитный доступ ко всем модулям чита и обходам' }
+          }
+        };
+
+        const cached = localStorage.getItem('skyline_site_config');
+        if (cached) {
+          try { currentCfg = JSON.parse(cached); } catch(e){}
+        }
+
+        try {
+          const { data } = await sb.from('site_config').select('value').eq('key', 'main').maybeSingle();
+          if (data && data.value) {
+            currentCfg = typeof data.value === 'string' ? JSON.parse(data.value) : data.value;
+            localStorage.setItem('skyline_site_config', JSON.stringify(currentCfg));
+          }
+        } catch(e){}
+
+        document.getElementById('cfgSiteName').value = currentCfg.siteName || 'SKYLINE';
+        document.getElementById('cfgHeroTitle').value = currentCfg.heroTitle || 'Приватный Чит Нового Поколения <span>Skyline</span>';
+        document.getElementById('cfgHeroDesc').value = currentCfg.heroDesc || '';
+
+        selectedThemeId = currentCfg.theme || 'purple';
+        renderThemesGrid();
+
+        if (currentCfg.plans) {
+          document.getElementById('cfgPriceReset').value = currentCfg.plans.reset?.price || '100 ₽';
+          document.getElementById('cfgDescReset').value = currentCfg.plans.reset?.desc || '';
+
+          document.getElementById('cfgPrice30d').value = currentCfg.plans.d30?.price || '150 ₽';
+          document.getElementById('cfgDesc30d').value = currentCfg.plans.d30?.desc || '';
+
+          document.getElementById('cfgPrice1yr').value = currentCfg.plans.y1?.price || '250 ₽';
+          document.getElementById('cfgDesc1yr').value = currentCfg.plans.y1?.desc || '';
+
+          document.getElementById('cfgPriceLife').value = currentCfg.plans.life?.price || '400 ₽';
+          document.getElementById('cfgDescLife').value = currentCfg.plans.life?.desc || '';
+        }
+      }
+
+      document.getElementById('btnSaveSiteSettings').addEventListener('click', async () => {
+        const btn = document.getElementById('btnSaveSiteSettings');
+        btn.disabled = true;
+
+        const updatedConfig = {
+          siteName: document.getElementById('cfgSiteName').value.trim() || 'SKYLINE',
+          heroTitle: document.getElementById('cfgHeroTitle').value.trim() || 'Приватный Чит Нового Поколения <span>Skyline</span>',
+          heroDesc: document.getElementById('cfgHeroDesc').value.trim() || '',
+          theme: selectedThemeId,
+          plans: {
+            reset: {
+              price: document.getElementById('cfgPriceReset').value.trim() || '100 ₽',
+              desc: document.getElementById('cfgDescReset').value.trim() || ''
+            },
+            d30: {
+              price: document.getElementById('cfgPrice30d').value.trim() || '150 ₽',
+              desc: document.getElementById('cfgDesc30d').value.trim() || ''
+            },
+            y1: {
+              price: document.getElementById('cfgPrice1yr').value.trim() || '250 ₽',
+              desc: document.getElementById('cfgDesc1yr').value.trim() || ''
+            },
+            life: {
+              price: document.getElementById('cfgPriceLife').value.trim() || '400 ₽',
+              desc: document.getElementById('cfgDescLife').value.trim() || ''
+            }
+          }
+        };
+
+        const jsonPayload = JSON.stringify(updatedConfig);
+        localStorage.setItem('skyline_site_config', jsonPayload);
+
+        if (window.applySiteConfig) {
+          window.applySiteConfig(updatedConfig);
+        }
+
+        try {
+          const { error } = await sb.from('site_config').upsert({
+            key: 'main',
+            value: updatedConfig,
+            updated_at: new Date().toISOString()
+          });
+
+          if (error) {
+            showToast("Ошибка сохранения", error.message);
+          } else {
+            showToast("Успешно", "Настройки сохранены и синхронизированы в облаке!");
+          }
+        } catch(e) {
+          showToast("Ошибка сохранения", e.message || e);
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      document.getElementById('btnResetDefaults').addEventListener('click', () => {
+        const def = window.DEFAULT_SITE_CONFIG;
+        if (!def) return;
+        document.getElementById('cfgSiteName').value = def.siteName;
+        document.getElementById('cfgHeroTitle').value = def.heroTitle;
+        document.getElementById('cfgHeroDesc').value = def.heroDesc;
+        selectedThemeId = def.theme;
+        renderThemesGrid();
+        if (def.plans) {
+          document.getElementById('cfgPriceReset').value = def.plans.reset.price;
+          document.getElementById('cfgDescReset').value = def.plans.reset.desc;
+          document.getElementById('cfgPrice30d').value = def.plans.d30.price;
+          document.getElementById('cfgDesc30d').value = def.plans.d30.desc;
+          document.getElementById('cfgPrice1yr').value = def.plans.y1.price;
+          document.getElementById('cfgDesc1yr').value = def.plans.y1.desc;
+          document.getElementById('cfgPriceLife').value = def.plans.life.price;
+          document.getElementById('cfgDescLife').value = def.plans.life.desc;
+        }
+        showToast("Сброс", "Значения восстановлены по умолчанию. Нажмите 'Сохранить', чтобы применить.");
+      });
+
+      function showToast(title, msg) {
+        const modal = document.getElementById('settingsToastModal');
+        document.getElementById('settingsToastTitle').textContent = title;
+        document.getElementById('settingsToastMsg').textContent = msg;
+        modal.classList.add('active');
+
+        const btnClose = document.getElementById('btnSettingsToastClose');
+        const handleClose = () => {
+          modal.classList.remove('active');
+          btnClose.removeEventListener('click', handleClose);
+        };
+        btnClose.addEventListener('click', handleClose);
+      }
+
+      await loadSettings();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSettingsPage);
+    } else {
+      initSettingsPage();
+    }
+  </script>
+
+  <!-- Anime.js & Page Animations -->
+  <script src="assets/anime.min.js"></script>
+  <script src="animations.js"></script>
+</body>
+</html>

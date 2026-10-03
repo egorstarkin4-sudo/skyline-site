@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Политика конфиденциальности Skyline — обработка данных, защита HWID и безопасность пользователей.">
+  <title>Skyline | Политика конфиденциальности</title>
+  
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="shortcut icon" type="image/png" href="assets/logo.png">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+
+  <!-- Launcher Font & Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <style>
+    .legal-page-wrap {
+      max-width: 900px;
+      margin: calc(var(--header-height) + 24px) auto 60px auto;
+      padding: 0 20px;
+    }
+    .legal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-md);
+      padding: 40px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      line-height: 1.7;
+    }
+    .legal-card h1 {
+      font-size: 28px;
+      font-family: var(--font-bold);
+      margin-bottom: 8px;
+    }
+    .legal-card h2 {
+      font-size: 18px;
+      font-family: var(--font-bold);
+      margin-top: 32px;
+      margin-bottom: 12px;
+      color: #fff;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 6px;
+    }
+    .legal-card h3 {
+      font-size: 14.5px;
+      font-family: var(--font-bold);
+      margin-top: 18px;
+      margin-bottom: 8px;
+      color: var(--accent-color);
+    }
+    .legal-card p {
+      font-size: 13.5px;
+      color: var(--text-color-grayed);
+      margin-bottom: 12px;
+    }
+    .legal-card ul {
+      margin: 10px 0 16px 20px;
+      color: var(--text-color-grayed);
+      font-size: 13.5px;
+    }
+    .legal-card li {
+      margin-bottom: 6px;
+    }
+    .terms-box {
+      background: #0d0d10;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-sm);
+      padding: 16px;
+      margin: 14px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient Plasma Glowing Orbs -->
+  <div class="ambient-glow-layer" aria-hidden="true">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
+  <!-- Navigation Header -->
+  <header class="site-header" id="mainHeader">
+    <div class="header-inner">
+      <div class="header-brand" onclick="location.href='index.html'" style="cursor:pointer;">
+        <img class="header-logo-img" src="assets/logo.png" alt="Skyline Logo">
+        <div class="header-brand-title">
+          <span>SKYLINE</span>
+          <span class="header-badge">Privacy Policy</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <button type="button" onclick="location.href='index.html'" data-i18n="nav_home">Главная</button>
+        <button type="button" onclick="location.href='profile.html'" data-i18n="nav_profile_long">Личный кабинет</button>
+        <button type="button" onclick="location.href='terms.html'" data-i18n="footer_terms">Условия</button>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <div class="lang-switcher" role="group" aria-label="Language Selector">
+          <button type="button" class="lang-btn active" data-lang="ru">RU</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+
+        <button type="button" class="btn-outline" onclick="location.href='index.html'">
+          <i class="bi bi-arrow-left"></i>
+          <span data-i18n="nav_to_home">На главную</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Legal Content -->
+  <main class="legal-page-wrap">
+    <button type="button" class="page-back-btn" onclick="location.href='index.html'">
+      <i class="bi bi-arrow-left"></i>
+      <span data-i18n="prof_back">Вернуться на главную</span>
+    </button>
+
+    <div class="legal-card">
+      <div class="lang-view" data-lang-view="ru">
+        <span class="section-tag">Безопасность данных</span>
+        <h1>Политика <span>конфиденциальности</span></h1>
+        <p style="color:var(--text-color-grayed-48); font-size:12px; margin-bottom:20px;">
+          Дата вступления в силу: 14 августа 2026 г. • Редакция 1.0
+        </p>
+
+        <h2>1. Какие данные мы собираем</h2>
+        <div class="terms-box">
+          <ul>
+            <li><strong>Email:</strong> Используется исключительно для аутентификации и восстановления доступа.</li>
+            <li><strong>Игровой никнейм Minecraft:</strong> Необходим для идентификации игрового профиля.</li>
+            <li><strong>Аппаратный идентификатор (HWID):</strong> Хэш компонентов ПК, используемый для проверки лицензии.</li>
+            <li><strong>IP-адрес:</strong> Используется для защиты API авторизации от DDoS и спам-атак.</li>
+          </ul>
+        </div>
+
+        <h2>2. Безопасность и защита данных</h2>
+        <p>Мы используем современные стандарты шифрования TLS/SSL и защищённые облачные базы данных Supabase с политиками Row-Level Security (RLS). Мы <strong>не собираем</strong> персональные файлы, пароли от браузеров или конфиденциальную информацию пользователя.</p>
+
+        <h2>3. Передача третьим лицам</h2>
+        <p>Данные пользователей никогда не передаются и не продаются рекламным сетям или третьим сторонам.</p>
+
+        <h2>4. Удаление профиля</h2>
+        <p>Вы имеете право в любой момент запросить полное удаление вашей учетной записи и связанных данных, обратившись к нам через официальные каналы связи.</p>
+
+        <h2>5. Контакты</h2>
+        <div class="terms-box">
+          <ul>
+            <li><strong>Telegram:</strong> <a href="https://t.me/x00dll" target="_blank" style="color:var(--accent-color);">@x00dll</a></li>
+            <li><strong>Email:</strong> <a href="mailto:skylinevsupport@gmail.com" style="color:var(--accent-color);">skylinevsupport@gmail.com</a></li>
+            <li><strong>Discord:</strong> <a href="https://discord.gg/WkkpHvRyXU" target="_blank" style="color:var(--accent-color);">discord.gg/WkkpHvRyXU</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="lang-view" data-lang-view="en" style="display:none;">
+        <span class="section-tag">Data Protection</span>
+        <h1>Privacy <span>Policy</span></h1>
+        <p style="color:var(--text-color-grayed-48); font-size:12px; margin-bottom:20px;">
+          Effective Date: August 14, 2026 • Version 1.0
+        </p>
+
+        <h2>1. Data We Collect</h2>
+        <p>We collect only the minimal information required to provide and protect the Service: Email, Minecraft nickname, and computer Hardware ID (HWID) hash for license verification.</p>
+
+        <h2>2. Data Security</h2>
+        <p>All communication is secured with industry-standard TLS encryption. Data is stored on secure cloud databases protected with strict Row-Level Security policies.</p>
+
+        <h2>3. Third Parties</h2>
+        <p>We never sell or disclose your personal information to third parties or advertising brokers.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand" onclick="location.href='index.html'" style="cursor:pointer;">
+        <img src="assets/logo.png" alt="Skyline" style="width:20px; height:20px; border-radius:6px;">
+        <span style="font-family:var(--font-bold); font-size:13px;">SKYLINE CLIENT</span>
+      </div>
+      <div class="footer-links">
+        <a href="index.html" data-i18n="footer_home">Главная</a>
+        <a href="profile.html" data-i18n="footer_profile">Личный кабинет</a>
+        <a href="terms.html" data-i18n="footer_terms">Пользовательское соглашение</a>
+      </div>
+      <div class="footer-copy" data-i18n="footer_copy">
+        &copy; 2026 Skyline. Все права защищены.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Anime.js & Page Animations -->
+  <script src="assets/anime.min.js"></script>
+  <script src="animations.js"></script>
+
+  <script src="app.js"></script>
+  <script>
+    (function initLangToggle() {
+      const savedLang = localStorage.getItem('skyline_lang') || localStorage.getItem('shape_lang') || 'ru';
+      function setLang(lang) {
+        document.querySelectorAll('.lang-view').forEach(view => {
+          view.style.display = view.getAttribute('data-lang-view') === lang ? 'block' : 'none';
+        });
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+        });
+        localStorage.setItem('skyline_lang', lang);
+      }
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang')));
+      });
+      setLang(savedLang);
+    })();
+  </script>
+</body>
+</html>

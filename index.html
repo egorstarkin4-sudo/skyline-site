@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Skyline — Приватный чит-клиент нового поколения для Minecraft Fabric 1.21.4. Killaura, ESP, Wallhack, обходы античитов GrimAC/Vulcan/Matrix и HWID защита.">
+  <title>Skyline | Приватный Чит для Minecraft</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="shortcut icon" type="image/png" href="assets/logo.png">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+
+  <!-- Launcher Font & Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Auto-redirect to reset-password.html if landing from recovery email -->
+  <script>
+    (function() {
+      var h = window.location.hash || '';
+      var s = window.location.search || '';
+      if (h.indexOf('type=recovery') !== -1 || (h.indexOf('access_token=') !== -1 && h.indexOf('type=signup') === -1)) {
+        window.location.replace('reset-password.html' + s + h);
+      }
+    })();
+  </script>
+</head>
+<body>
+  <!-- Ambient Plasma Glowing Orbs (Anime.js animated) -->
+  <div class="ambient-glow-layer" aria-hidden="true">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
+  <!-- Site Navigation Header (Launcher Window Header Style) -->
+  <header class="site-header" id="mainHeader">
+    <div class="header-inner">
+      <div class="header-brand" onclick="location.href='index.html'" style="cursor:pointer;">
+        <img class="header-logo-img" src="assets/logo.png" alt="Skyline Logo">
+        <div class="header-brand-title">
+          <span>SKYLINE</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <button type="button" class="scroll-link" data-target="#hero" data-i18n="nav_home">Главная</button>
+        <button type="button" class="scroll-link" data-target="#versions" data-i18n="nav_versions">Версии</button>
+        <button type="button" class="scroll-link" data-target="#features" data-i18n="nav_features">Особенности</button>
+        <button type="button" class="scroll-link" data-target="#comparison" data-i18n="nav_comparison">Сравнение</button>
+        <button type="button" class="scroll-link" data-target="#pricing" data-i18n="nav_pricing">Цены</button>
+        <button type="button" class="scroll-link" data-target="#faq" data-i18n="nav_faq">FAQ</button>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <div class="lang-switcher" role="group" aria-label="Language Selector">
+          <button type="button" class="lang-btn active" data-lang="ru">RU</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+
+        <!-- Auth Button (Guest) -->
+        <button type="button" class="btn-outline" id="btn-open-auth" onclick="location.href='profile.html'" data-i18n="nav_login">
+          <i class="bi bi-box-arrow-in-right"></i>
+          <span>Войти</span>
+        </button>
+
+        <!-- Profile Button (Logged in user) -->
+        <div class="header-account-pill" id="btn-open-profile" style="display:none;" onclick="location.href='profile.html'">
+          <img class="account-avatar-sm" id="navAvatarImg" src="assets/asset_6.png" alt="User Avatar">
+          <span class="account-name-sm" id="nav-user-nick" data-i18n="nav_profile">Кабинет</span>
+        </div>
+
+        <!-- Buy Action Button -->
+        <button type="button" class="btn-fill external-link" data-url="https://funpay.com/users/20881553/" data-i18n="nav_buy">
+          <i class="bi bi-lightning-charge-fill"></i>
+          <span>Купить</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section" id="hero">
+    <h1 class="hero-title" data-i18n="hero_title">
+      Приватный Чит Нового Поколения <span>Skyline</span>
+    </h1>
+
+    <p class="hero-desc" data-i18n="hero_desc">
+      Доминируйте на серверах с помощью продвинутого чит-клиента Skyline. Умная Killaura, точный ESP/Wallhack, обходы современных античитов и настраиваемый HUD. Разработано для Fabric 1.21.4.
+    </p>
+
+    <div class="hero-actions">
+      <button type="button" class="btn-fill scroll-link" data-target="#pricing" data-i18n="hero_btn">
+        <i class="bi bi-cart3"></i>
+        <span>Приобрести Skyline</span>
+      </button>
+      <button type="button" class="btn-outline" onclick="location.href='profile.html'">
+        <i class="bi bi-person-fill"></i>
+        <span data-i18n="footer_profile">Личный кабинет</span>
+      </button>
+      <button type="button" class="btn-ghost external-link" data-url="https://discord.gg/WkkpHvRyXU">
+        <i class="bi bi-discord"></i>
+        <span>Discord</span>
+      </button>
+    </div>
+
+    <!-- Live Launcher Interface Mockup -->
+    <div class="launcher-mockup-wrapper" id="heroCard">
+      <div class="mockup-header">
+        <div class="mockup-header-left">
+          <div class="window-actions">
+            <span class="window-dot close"></span>
+            <span class="window-dot min"></span>
+            <span class="window-dot max"></span>
+          </div>
+          <span class="mockup-header-title">Skyline Launcher • v2.4.0</span>
+        </div>
+        <div class="header-account-pill" style="height:32px; padding:2px 10px 2px 4px;">
+          <img class="account-avatar-sm" src="assets/asset_6.png" alt="Avatar" style="width:24px; height:24px;">
+          <div class="account-info-sm">
+            <span class="account-name-sm" style="font-size:11px;">Player</span>
+            <span class="account-sub-sm" style="font-size:9px; color:#4ade80;">Active</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mockup-body">
+        <!-- Navigation Rail -->
+        <div class="mockup-nav-rail">
+          <div class="mockup-nav-group">
+            <div class="mockup-nav-item active" title="Dashboard">
+              <i class="bi bi-grid-1x2-fill"></i>
+            </div>
+            <div class="mockup-nav-item" title="Accounts">
+              <i class="bi bi-person-badge"></i>
+            </div>
+            <div class="mockup-nav-item" title="Settings">
+              <i class="bi bi-gear-fill"></i>
+            </div>
+            <div class="mockup-nav-item" title="Folder">
+              <i class="bi bi-folder-fill"></i>
+            </div>
+          </div>
+          <div class="mockup-nav-group">
+            <div class="mockup-nav-item" title="Discord" onclick="window.open('https://discord.gg/WkkpHvRyXU','_blank')">
+              <i class="bi bi-discord"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Launcher Canvas: Version Cards -->
+        <div class="mockup-canvas">
+          <div class="mockup-versions-grid" style="grid-template-columns: 1fr;">
+            <!-- Version: 1.21.4 Alpha -->
+            <div class="version-card" onclick="location.href='profile.html'" style="min-height: 380px;">
+              <img class="version-card-bg" src="assets/version_1_21_4_alpha.jpg" alt="Skyline 1.21.4 Alpha">
+              <div class="version-card-content">
+                <div class="version-meta">
+                  <div class="version-title" style="font-size:18px;">Skyline 1.21.4 Alpha</div>
+                  <div class="version-subtitle">Fabric • GrimAC & Matrix Bypasses • Experimental Modules</div>
+                </div>
+                <div class="version-play-btn" title="Launch Skyline" style="width:42px; height:42px;">
+                  <i class="bi bi-play-fill" style="font-size:22px;"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Versions Section (Launcher Versions Showcase) -->
+  <section class="section-wrapper" id="versions">
+    <div class="section-head">
+      <span class="section-tag" data-i18n="versions_tag">Поддерживаемые версии</span>
+      <h2 class="section-title" data-i18n="versions_title">Готовые сборки под любой сервер</h2>
+      <p class="section-desc" data-i18n="versions_desc">Клиент запускается прямо из официального лаунчера Skyline в один клик. Никакой сложной ручной установки.</p>
+    </div>
+
+    <div class="launcher-versions-grid" style="max-width: 680px; margin: 0 auto; grid-template-columns: 1fr;">
+      <!-- 1.21.4 Alpha Card -->
+      <div class="full-version-card" style="height: auto; min-height: 420px;">
+        <img class="full-version-img" src="assets/version_1_21_4_alpha.jpg" alt="Skyline 1.21.4 Alpha" style="height: 260px;">
+        <div class="full-version-info">
+          <div>
+            <div class="full-version-header">
+              <span class="full-version-name" style="font-size: 20px;">Skyline 1.21.4 Alpha</span>
+              <span class="full-version-badge" style="background: rgba(139, 92, 246, 0.18); color: var(--accent-color); border: 1px solid var(--accent-color);">1.21.4 Alpha</span>
+            </div>
+            <p class="full-version-desc" style="font-size: 14px; line-height: 1.6; margin-top: 8px;" data-i18n="versions_card_desc">
+              Флагманская тестовая сборка с ранним доступом к новейшим эвристическим обходам GrimAC 2.0, Matrix, NoSlow, улучшенным Chams, Wallhack и адаптивным AimAssist под 1.21.4.
+            </p>
+          </div>
+          <div class="full-version-action" style="margin-top: 20px;">
+            <span class="version-tag-pill">Fabric Loader • Java 21 • Early Access</span>
+            <button type="button" class="btn-fill" style="padding:10px 22px; font-size:13px;" onclick="location.href='profile.html'">
+              <i class="bi bi-play-fill" style="font-size:16px;"></i>
+              <span data-i18n="versions_btn_launch">Запуск в лаунчере</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section (Launcher Bento Grid) -->
+  <section class="section-wrapper" id="features">
+    <div class="section-head">
+      <span class="section-tag" data-i18n="feat_tag">Возможности</span>
+      <h2 class="section-title" data-i18n="feat_title">Почему выбирают <span>Skyline Client</span></h2>
+      <p class="section-desc" data-i18n="feat_subtitle">Мощный функционал для победы в любом PvP-сражении с гарантией безопасности вашей системы.</p>
+    </div>
+
+    <div class="features-grid">
+      <!-- Feature 1: Combat -->
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <i class="bi bi-shield-shaded"></i>
+        </div>
+        <h3 class="feature-title" data-i18n="feat_1_title">Боевая система (Combat & Killaura)</h3>
+        <p class="feature-desc" data-i18n="feat_1_desc">Умный фокус целей, гибкая настройка угла обзора (FOV), плавная наводка, авто-спринт и обход проверок на клики.</p>
+      </div>
+
+      <!-- Feature 2: ESP / Wallhack -->
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <i class="bi bi-eye-fill"></i>
+        </div>
+        <h3 class="feature-title" data-i18n="feat_2_title">Визуалы и Wallhack (ESP & Chams)</h3>
+        <p class="feature-desc" data-i18n="feat_2_desc">Полная подсветка игроков, мобов, сундуков и дропа сквозь стены. Трассера, кастомные градиенты и индикаторы брони.</p>
+      </div>
+
+      <!-- Feature 3: Bypass Engine -->
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <i class="bi bi-cpu-fill"></i>
+        </div>
+        <h3 class="feature-title" data-i18n="feat_3_title">Обходы античитов (Bypass Engine)</h3>
+        <p class="feature-desc" data-i18n="feat_3_desc">Кастомные модули движения (NoSlow, Velocity 0%, Step, Spider) с оптимизацией под обходы GrimAC, Vulcan, Matrix и Polar.</p>
+      </div>
+
+      <!-- Feature 4: HWID & Cloud Configs -->
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <i class="bi bi-fingerprint"></i>
+        </div>
+        <h3 class="feature-title" data-i18n="feat_4_title">HWID Защита и Cloud Конфиги</h3>
+        <p class="feature-desc" data-i18n="feat_4_desc">Надёжная привязка к вашему ПК исключает риск утечки аккаунта. Быстрое сохранение и переключение готовых конфигов в облаке.</p>
+      </div>
+
+      <!-- Feature 5: Launcher Synchronization -->
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <i class="bi bi-arrow-repeat"></i>
+        </div>
+        <h3 class="feature-title" data-i18n="feat_5_title">Бесшовный лаунчер</h3>
+        <p class="feature-desc" data-i18n="feat_5_desc">Автоматическое обновление файлов клиента, кэширование ресурсов и быстрая проверка лицензии прямо при запуске игры.</p>
+      </div>
+
+      <!-- Feature 6: Zero FPS Drop -->
+      <div class="feature-card">
+        <div class="feature-icon-box">
+          <i class="bi bi-speedometer2"></i>
+        </div>
+        <h3 class="feature-title" data-i18n="feat_6_title">Высокая производительность</h3>
+        <p class="feature-desc" data-i18n="feat_6_desc">Аппаратное ускорение рендеринга и полное отсутствие просадок FPS даже при включённых сложных Chams и визуалах.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Comparison Slider -->
+  <section class="section-wrapper" id="comparison">
+    <div class="section-head">
+      <span class="section-tag" data-i18n="comp_tag">Кастомизация</span>
+      <h2 class="section-title" data-i18n="comp_title">Играй <span>по-своему</span></h2>
+      <p class="section-desc" data-i18n="comp_subtitle">Выбирай: сочный HD-дизайн клиента или мрачная классика Minecraft. Решение за тобой — всегда.</p>
+    </div>
+
+    <div class="comparison-container" id="comparisonFrame">
+      <div class="comparison-wrapper">
+        <div class="comparison-layer">
+          <img src="assets/before_vanilla.png" alt="Vanilla Minecraft">
+        </div>
+        <div class="comparison-layer layer-after" id="layerAfter">
+          <img src="assets/after_shape.png" alt="Skyline Client">
+        </div>
+      </div>
+
+      <div class="comparison-handle" id="comparisonSlider">
+        <div class="comparison-handle-knob">
+          <i class="bi bi-chevron-left"></i>
+          <i class="bi bi-chevron-right"></i>
+        </div>
+      </div>
+    </div>
+    <p style="text-align:center; color:var(--text-color-grayed-48); font-size:12px; margin-top:14px;" id="comparisonHint">
+      <i class="bi bi-chevron-left" style="font-size:10px;"></i> <span data-i18n="comp_hint">Тяните ползунок для сравнения</span> <i class="bi bi-chevron-right" style="font-size:10px;"></i>
+    </p>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="section-wrapper" id="pricing">
+    <div class="section-head">
+      <span class="section-tag" data-i18n="price_tag">Приобретение</span>
+      <h2 class="section-title" data-i18n="price_title">Выберите Тарифный <span>План</span></h2>
+      <p class="section-desc" data-i18n="price_subtitle">Получите моментальный доступ к чит-клиенту Skyline сразу после оплаты. Никаких ручных проверок.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Plan 0: HWID Reset -->
+      <div class="pricing-card">
+        <div>
+          <div class="pricing-plan-name" data-i18n="plan_reset_title">Сброс HWID</div>
+          <div class="pricing-desc" data-plan-desc="reset" data-i18n="plan_reset_desc">Отвязка от старого ПК для переноса на новое устройство</div>
+          <div class="pricing-price-wrap">
+            <span class="pricing-amount" data-plan-price="reset">100 ₽</span>
+            <span class="pricing-period" data-i18n="plan_period_once">разово</span>
+          </div>
+          <ul class="pricing-features-list">
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_reset_f1">Моментальный сброс привязки</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_reset_f2">Перенос клиента на новый ПК</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_reset_f3">Сохранение срока вашей подписки</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_reset_f4">Автоматическая смена устройства</span></li>
+          </ul>
+        </div>
+        <button type="button" class="btn-outline external-link" data-url="https://funpay.com/lots/offer?id=78099739">
+          <span data-i18n="btn_buy">Купить</span>
+        </button>
+      </div>
+
+      <!-- Plan 1: 30 Days -->
+      <div class="pricing-card">
+        <div>
+          <div class="pricing-plan-name" data-i18n="plan_30d_title">30 Дней</div>
+          <div class="pricing-desc" data-plan-desc="d30" data-i18n="plan_30d_desc">Базовый доступ к чит-клиенту на 1 месяц</div>
+          <div class="pricing-price-wrap">
+            <span class="pricing-amount" data-plan-price="d30">150 ₽</span>
+            <span class="pricing-period" data-i18n="plan_period_30d">/ 30 дней</span>
+          </div>
+          <ul class="pricing-features-list">
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_30d_f1">Killaura, Triggerbot & AimAssist</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_30d_f2">ESP, Wallhack, Tracers & Chams</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_30d_f3">Обходы GrimAC, Vulcan, Matrix</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_30d_f4">Облачные конфиги и автообновления</span></li>
+          </ul>
+        </div>
+        <button type="button" class="btn-outline external-link" data-url="https://funpay.com/lots/offer?id=78092631">
+          <span data-i18n="btn_buy">Купить</span>
+        </button>
+      </div>
+
+      <!-- Plan 2: 1 Year -->
+      <div class="pricing-card">
+        <div>
+          <div class="pricing-plan-name" data-i18n="plan_1yr_title">1 Год</div>
+          <div class="pricing-desc" data-plan-desc="y1" data-i18n="plan_1yr_desc">Выгодный доступ ко всем модулям чита на 365 дней</div>
+          <div class="pricing-price-wrap">
+            <span class="pricing-amount" data-plan-price="y1">250 ₽</span>
+            <span class="pricing-period" data-i18n="plan_period_365d">/ 365 дней</span>
+          </div>
+          <ul class="pricing-features-list">
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_1yr_f1">Killaura, Triggerbot & AimAssist</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_1yr_f2">ESP, Wallhack, Tracers & Chams</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_1yr_f3">Обходы GrimAC, Vulcan, Matrix</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_1yr_f4">Облачные конфиги и автообновления</span></li>
+          </ul>
+        </div>
+        <button type="button" class="btn-outline external-link" data-url="https://funpay.com/lots/offer?id=74001792">
+          <span data-i18n="btn_buy">Купить</span>
+        </button>
+      </div>
+
+      <!-- Plan 3: Lifetime (Featured) -->
+      <div class="pricing-card featured">
+        <span class="pricing-badge-popular" data-i18n="featured_ribbon"><i class="bi bi-star-fill"></i> Most Popular</span>
+        <div>
+          <div class="pricing-plan-name" data-i18n="plan_life_title">Навсегда</div>
+          <div class="pricing-desc" data-plan-desc="life" data-i18n="plan_life_desc">Полный безлимитный доступ ко всем модулям чита и обходам</div>
+          <div class="pricing-price-wrap">
+            <span class="pricing-amount" data-plan-price="life">400 ₽</span>
+            <span class="pricing-period" data-i18n="plan_period_lifetime">навсегда</span>
+          </div>
+          <ul class="pricing-features-list">
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_life_f1">Killaura, Triggerbot & AimAssist</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_life_f2">ESP, Wallhack, Tracers & Chams</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_life_f3">Обходы GrimAC, Vulcan, Matrix</span></li>
+            <li class="pricing-feature-item"><i class="bi bi-check2"></i> <span data-i18n="plan_life_f4">Пожизненный доступ и приоритет</span></li>
+          </ul>
+        </div>
+        <button type="button" class="btn-fill external-link" data-url="https://funpay.com/lots/offer?id=74002156">
+          <i class="bi bi-lightning-charge-fill"></i>
+          <span data-i18n="plan_buy_lifetime_btn">Купить Lifetime</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="section-wrapper" id="faq">
+    <div class="section-head">
+      <span class="section-tag" data-i18n="faq_tag">Вопросы и Ответы</span>
+      <h2 class="section-title" data-i18n="faq_title">Часто Задаваемые <span>Вопросы</span></h2>
+      <p class="section-desc" data-i18n="faq_subtitle">Возникли вопросы по установке или работе? Здесь собраны популярные ответы.</p>
+    </div>
+
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-question">
+          <span data-i18n="faq_q1">Как работает автоматическая привязка HWID?</span>
+          <i class="bi bi-chevron-down faq-icon"></i>
+        </div>
+        <div class="faq-answer">
+          <p data-i18n="faq_a1">
+            При регистрации вы указываете свой игровой никнейм. Когда вы заходите в игру с запущенным читом Skyline, клиент генерирует аппаратный идентификатор вашего ПК (HWID) и связывает его с вашим профилем. Сбросить привязку можно в личном кабинете.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <span data-i18n="faq_q2">Каковы системные требования чита?</span>
+          <i class="bi bi-chevron-down faq-icon"></i>
+        </div>
+        <div class="faq-answer">
+          <p data-i18n="faq_a2">
+            Skyline оптимизирован для Fabric 1.21.4. Благодаря эффективному рендерингу чит не просаживает FPS и плавно работает на любых современных ПК с поддержкой OpenGL 3.3+.
+          </p>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          <span data-i18n="faq_q3">Какие античиты обходит Skyline?</span>
+          <i class="bi bi-chevron-down faq-icon"></i>
+        </div>
+        <div class="faq-answer">
+          <p data-i18n="faq_a3">
+            Модули Skyline протестированы и оптимизированы под актуальные проверки GrimAC, Vulcan, Matrix, Polar и кастомные серверные античиты.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand" onclick="location.href='index.html'" style="cursor:pointer;">
+        <img src="assets/logo.png" alt="Skyline" style="width:22px; height:22px; border-radius:6px;">
+        <span style="font-family:var(--font-bold); font-size:14px;">SKYLINE CLIENT</span>
+      </div>
+
+      <div class="footer-links">
+        <a href="#hero" class="scroll-link" data-target="#hero" data-i18n="footer_home">Главная</a>
+        <a href="#features" class="scroll-link" data-target="#features" data-i18n="footer_features">Особенности</a>
+        <a href="#pricing" class="scroll-link" data-target="#pricing" data-i18n="footer_pricing">Тарифы</a>
+        <a href="profile.html" data-i18n="footer_profile">Личный кабинет</a>
+        <a href="terms.html" data-i18n="footer_terms">Пользовательское соглашение</a>
+        <a href="privacy.html" data-i18n="footer_privacy">Политика конфиденциальности</a>
+      </div>
+
+      <div class="footer-links" style="font-size:12px;">
+        <a href="https://t.me/x00dll" target="_blank" rel="noopener"><i class="bi bi-telegram"></i> @x00dll</a>
+        <a href="mailto:skylinevsupport@gmail.com"><i class="bi bi-envelope"></i> skylinevsupport@gmail.com</a>
+        <a href="https://discord.gg/WkkpHvRyXU" target="_blank" rel="noopener"><i class="bi bi-discord"></i> Discord</a>
+      </div>
+
+      <div class="footer-copy" data-i18n="footer_copy">
+        &copy; 2026 Skyline Client. Все права защищены. Minecraft является торговой маркой Mojang Synergies AB.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Anime.js Engine & Custom Physics Animations -->
+  <script src="assets/anime.min.js"></script>
+  <script src="animations.js"></script>
+
+  <!-- Core App Logic (Supabase Auth & Translations) -->
+  <script src="app.js"></script>
+</body>
+</html>

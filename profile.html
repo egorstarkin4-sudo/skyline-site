@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Личный кабинет Skyline — управление подпиской, привязкой HWID и скачивание клиента.">
+  <title>Skyline | Личный кабинет</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <link rel="shortcut icon" type="image/png" href="assets/logo.png">
+  <link rel="apple-touch-icon" href="assets/logo.png">
+
+  <!-- Launcher Font & Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <!-- Ambient Plasma Glowing Orbs (Anime.js animated) -->
+  <div class="ambient-glow-layer" aria-hidden="true">
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+  </div>
+
+  <!-- Navigation Header (Launcher Style) -->
+  <header class="site-header" id="mainHeader">
+    <div class="header-inner">
+      <div class="header-brand" onclick="location.href='index.html'" style="cursor:pointer;">
+        <img class="header-logo-img" src="assets/logo.png" alt="Skyline Logo">
+        <div class="header-brand-title">
+          <span>SKYLINE</span>
+        </div>
+      </div>
+
+      <nav class="header-nav">
+        <button type="button" onclick="location.href='index.html'" data-i18n="nav_home">Главная</button>
+        <button type="button" onclick="location.href='index.html#versions'" data-i18n="nav_versions">Версии</button>
+        <button type="button" onclick="location.href='index.html#features'" data-i18n="nav_features">Особенности</button>
+        <button type="button" onclick="location.href='index.html#pricing'" data-i18n="nav_pricing">Цены</button>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <div class="lang-switcher" role="group" aria-label="Language Selector">
+          <button type="button" class="lang-btn active" data-lang="ru">RU</button>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+        </div>
+
+        <button type="button" class="btn-outline" onclick="location.href='index.html'">
+          <i class="bi bi-arrow-left"></i>
+          <span data-i18n="prof_back">На главную</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Profile Wrapper -->
+  <main class="profile-page-wrapper">
+    <button type="button" class="page-back-btn" onclick="location.href='index.html'">
+      <i class="bi bi-arrow-left"></i>
+      <span data-i18n="prof_back">Вернуться на главную</span>
+    </button>
+
+    <!-- VIEW 1: AUTHENTICATION (Launcher AuthorizationView Split-Card) -->
+    <div class="auth-view active" id="authView">
+      <div class="launcher-auth-container">
+        <!-- Left Side: Login & Register Forms -->
+        <div class="auth-left-col">
+          <div class="auth-branding-title">
+            <span class="section-tag" data-i18n="prof_tag">Авторизация</span>
+            <h1 id="authTitle" data-i18n="prof_auth_title">Вход в <span>Skyline</span></h1>
+            <p id="authSubtitle" data-i18n="prof_auth_subtitle">Войдите в личный кабинет для доступа к подписке и ключам</p>
+          </div>
+
+          <!-- Tabs (Sign In / Register) -->
+          <div class="auth-tabs">
+            <button type="button" class="auth-tab-btn active" id="tabLoginBtn" data-i18n="prof_tab_login">Вход</button>
+            <button type="button" class="auth-tab-btn" id="tabRegisterBtn" data-i18n="prof_tab_register">Регистрация</button>
+          </div>
+
+          <!-- Alert message box -->
+          <div id="authAlert" class="alert-box error" style="display:none;"></div>
+
+          <!-- Form 1: Login -->
+          <form id="formLogin" class="auth-form active" novalidate>
+            <div class="form-group">
+              <label for="loginEmail" data-i18n="prof_login_email_lbl">Email</label>
+              <div class="input-container">
+                <input type="email" id="loginEmail" placeholder="name@example.com" required autocomplete="email">
+                <i class="bi bi-envelope input-icon"></i>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="loginPassword" data-i18n="prof_login_pass_lbl">Пароль</label>
+              <div class="input-container">
+                <input type="password" id="loginPassword" placeholder="••••••••" required autocomplete="current-password">
+                <i class="bi bi-lock input-icon"></i>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; margin-top:-4px; margin-bottom:12px;">
+              <button type="button" onclick="location.href='reset-password.html'" style="padding:0; font-size:12px; color:var(--text-color-grayed); background:none; border:none;" data-i18n="prof_forgot_pass">
+                Забыли пароль?
+              </button>
+            </div>
+
+            <button type="submit" class="btn-fill" id="btnSubmitLogin" style="height:46px;" data-i18n="prof_btn_login">
+              <i class="bi bi-box-arrow-in-right"></i>
+              <span>Войти в аккаунт</span>
+            </button>
+          </form>
+
+          <!-- Form 2: Register -->
+          <form id="formRegister" class="auth-form" novalidate>
+            <div class="form-group">
+              <label for="regNickname" data-i18n="prof_reg_nick_lbl">Игровой никнейм (Minecraft)</label>
+              <div class="input-container">
+                <input type="text" id="regNickname" placeholder="Например: SadeWow" data-i18n-placeholder="prof_reg_nick_ph" required autocomplete="username">
+                <i class="bi bi-person input-icon"></i>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regEmail" data-i18n="prof_reg_email_lbl">Email</label>
+              <div class="input-container">
+                <input type="email" id="regEmail" placeholder="name@example.com" required autocomplete="email">
+                <i class="bi bi-envelope input-icon"></i>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="regPassword" data-i18n="prof_reg_pass_lbl">Пароль (минимум 6 символов)</label>
+              <div class="input-container">
+                <input type="password" id="regPassword" placeholder="••••••••" required autocomplete="new-password">
+                <i class="bi bi-shield-lock input-icon"></i>
+              </div>
+            </div>
+
+            <button type="submit" class="btn-fill" id="btnSubmitRegister" style="height:46px;" data-i18n="prof_btn_register">
+              <i class="bi bi-person-plus-fill"></i>
+              <span>Зарегистрироваться</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Right Side: Launcher Showcase Slider Overlay -->
+        <div class="auth-right-col">
+          <img class="auth-slide-img" id="authSlideImg" src="assets/asset_0.png" alt="Showcase">
+          <div class="auth-right-overlay"></div>
+          
+          <div class="auth-slide-content">
+            <div class="auth-slide-icon" id="authSlideIcon">
+              <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="auth-slide-title" id="authSlideTitle">Products</div>
+            <div class="auth-slide-desc" id="authSlideDesc">
+              Our products are tested and trusted by over 1000+ active players worldwide.
+            </div>
+            <div class="auth-slide-dots">
+              <span class="auth-slide-dot active" data-index="0"></span>
+              <span class="auth-slide-dot" data-index="1"></span>
+              <span class="auth-slide-dot" data-index="2"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW 2: PROFILE DASHBOARD (Launcher Dashboard Style) -->
+    <div class="profile-view" id="profileView">
+      <!-- User Hero Banner -->
+      <div class="profile-hero-card">
+        <div class="profile-user-left">
+          <img class="profile-avatar-lg" id="profileAvatar" src="assets/asset_6.png" alt="Avatar">
+          <div class="profile-user-text">
+            <h2>
+              <span id="profileUsername" data-i18n="prof_player">Игрок</span>
+              <span class="user-uid-pill" id="profileUidBadge" style="display:none;">UID: #—</span>
+            </h2>
+            <p id="profileUserEmail">user@example.com</p>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button type="button" class="btn-outline" id="btnLogout" data-i18n="prof_btn_logout">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Выйти</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Alert notification -->
+      <div id="profileAlert" class="alert-box error" style="display:none;"></div>
+
+      <!-- Stats Grid (UID, Subscription, HWID) -->
+      <div class="profile-stats-grid">
+        <!-- UID Card -->
+        <div class="stat-card">
+          <span class="stat-card-label" data-i18n="prof_uid_label">UID Аккаунта</span>
+          <div class="stat-card-badge active" id="profileUidVal" style="font-family:var(--font-mono); font-size:16px;">#—</div>
+          <span class="stat-card-detail" data-i18n="prof_uid_desc">Уникальный номер пользователя</span>
+        </div>
+
+        <!-- Subscription Card -->
+        <div class="stat-card">
+          <span class="stat-card-label" data-i18n="prof_sub_label">Статус подписки</span>
+          <div class="stat-card-badge inactive" id="profileSubBadge" data-i18n="prof_sub_inactive">Не активна</div>
+          <span class="stat-card-detail" id="profileSubExpiry" data-i18n="prof_sub_need_key">Требуется активация ключа</span>
+        </div>
+
+        <!-- HWID Card -->
+        <div class="stat-card">
+          <span class="stat-card-label" data-i18n="prof_hwid_label">Привязанный HWID</span>
+          <div class="stat-card-badge" id="profileHwidVal" style="background:#18181c; border:1px solid var(--border-color); color:var(--text-color); font-family:var(--font-mono); font-size:12px; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" data-i18n="prof_hwid_not_bound">
+            Не привязан
+          </div>
+          <span class="stat-card-detail" data-i18n="prof_hwid_detail">Привязывается автоматически при входе в игру</span>
+        </div>
+      </div>
+
+      <!-- Key Activation Box -->
+      <div class="profile-panel-box">
+        <div class="panel-box-title">
+          <i class="bi bi-key-fill" style="color:var(--accent-color);"></i>
+          <span data-i18n="prof_key_label">Активация по ключу</span>
+        </div>
+        <form id="formRedeemKey" class="key-redeem-row" novalidate>
+          <div class="input-container" style="flex:1;">
+            <input type="text" id="inputLicenseKey" placeholder="Введите ключ (SKYLINE-LIFE-...)" data-i18n-placeholder="prof_key_ph" autocomplete="off">
+            <i class="bi bi-ticket-perforated input-icon"></i>
+          </div>
+          <button type="submit" class="btn-fill" id="btnRedeemKey" style="min-width:140px; height:46px;" data-i18n="prof_key_btn">
+            <span>Применить</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- Admin Key Generator (Shown if user is admin) -->
+      <div class="profile-panel-box" id="adminGeneratorBox" style="display:none;">
+        <div class="panel-box-title">
+          <i class="bi bi-lightning-charge-fill" style="color:#eab308;"></i>
+          <span data-i18n="prof_admin_gen_label">Панель создания ключей (Администратор)</span>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <div class="input-container" style="flex:1; min-width:200px;">
+            <select id="selectKeyPlan" class="input-dark">
+              <option value="9999" data-i18n="plan_opt_lifetime">Навсегда (Lifetime)</option>
+              <option value="365" data-i18n="plan_opt_365d">1 Год (365 Дней)</option>
+              <option value="30" data-i18n="plan_opt_30d">30 Дней</option>
+              <option value="7" data-i18n="plan_opt_7d">7 Дней (Розыгрыши)</option>
+              <option value="0" data-i18n="plan_opt_reset">Сброс HWID (HWID Reset)</option>
+            </select>
+          </div>
+          <button type="button" class="btn-fill" id="btnAdminGenKey" style="height:46px;" data-i18n="prof_admin_gen_btn">
+            <i class="bi bi-plus-lg"></i>
+            <span>+ Создать ключ</span>
+          </button>
+        </div>
+        <div id="adminLastKeyDisplay" style="display:none; margin-top:12px; padding:12px; background:#0b0b0d; border:1px solid var(--border-color); border-radius:8px; font-family:var(--font-mono); font-size:13px; color:#4ade80;"></div>
+      </div>
+
+      <!-- Download Client Box (Shown if subscription is active) -->
+      <div class="download-launcher-banner" id="profileDownloadBox" style="display:none;">
+        <div class="download-banner-left">
+          <div class="download-icon-box">
+            <i class="bi bi-download"></i>
+          </div>
+          <div class="download-banner-text">
+            <h3 data-i18n="prof_dl_title">Скачать Skyline Launcher</h3>
+            <p data-i18n="prof_dl_sub">Официальный инсталлер (installer.exe) • Fabric 1.21.4</p>
+          </div>
+        </div>
+        <button type="button" class="btn-fill" id="btnDownloadClient">
+          <i class="bi bi-cloud-arrow-down-fill"></i>
+          <span>Скачать .EXE</span>
+        </button>
+      </div>
+
+      <!-- Action Buttons Row -->
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;">
+        <button type="button" class="btn-fill" id="btnAdminPanel" style="display:none; background:#2c1b4d; border-color:#8b5cf6;" onclick="location.href='admin.html'">
+          <i class="bi bi-shield-lock-fill"></i>
+          <span data-i18n="prof_btn_admin">Админ-панель</span>
+        </button>
+        <button type="button" class="btn-outline" id="btnResetHwid" style="display:none;" data-i18n="prof_btn_reset_hwid">
+          <i class="bi bi-arrow-counterclockwise"></i>
+          <span>Сбросить привязку HWID</span>
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-window">
+      <div class="modal-header">
+        <span class="modal-title" id="confirmModalTitle" data-i18n="prof_modal_title">Подтвердите действие</span>
+        <button type="button" class="modal-close-btn" id="btnConfirmCancel">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalMsg" style="color:var(--text-color-grayed); font-size:13.5px;" data-i18n="prof_modal_msg">
+          Вы уверены, что хотите сбросить привязку HWID?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-outline" id="btnConfirmCancelAlt" onclick="document.getElementById('confirmModal').classList.remove('active')" data-i18n="prof_modal_cancel">
+          Отмена
+        </button>
+        <button type="button" class="btn-fill" id="btnConfirmOk" data-i18n="prof_modal_ok">
+          Да, сбросить
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand" onclick="location.href='index.html'" style="cursor:pointer;">
+        <img src="assets/logo.png" alt="Skyline" style="width:20px; height:20px; border-radius:6px;">
+        <span style="font-family:var(--font-bold); font-size:13px;">SKYLINE CLIENT</span>
+      </div>
+      <div class="footer-links">
+        <a href="index.html" data-i18n="footer_home">Главная</a>
+        <a href="terms.html" data-i18n="footer_terms">Пользовательское соглашение</a>
+        <a href="privacy.html" data-i18n="footer_privacy">Политика конфиденциальности</a>
+      </div>
+      <div class="footer-copy" data-i18n="footer_copy">
+        &copy; 2026 Skyline. Все права защищены.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Rotating Showcase Slides on Right Column -->
+  <script>
+    (function initAuthSlider() {
+      const slides = [
+        {
+          img: "assets/asset_0.png",
+          icon: "bi-shield-check",
+          title: "Products",
+          desc: "Our products are tested and trusted by over 1000+ active players worldwide."
+        },
+        {
+          img: "assets/asset_1.png",
+          icon: "bi-lightning-charge-fill",
+          title: "Speed",
+          desc: "Our main goal is instant response and your valuable experience in game."
+        },
+        {
+          img: "assets/asset_2.png",
+          icon: "bi-eye-fill",
+          title: "Visuals",
+          desc: "Next generation visual effects and chams optimized for flawless performance."
+        }
+      ];
+
+      let currentIndex = 0;
+      const imgEl = document.getElementById('authSlideImg');
+      const iconEl = document.getElementById('authSlideIcon');
+      const titleEl = document.getElementById('authSlideTitle');
+      const descEl = document.getElementById('authSlideDesc');
+      const dots = document.querySelectorAll('.auth-slide-dot');
+
+      function updateSlide(idx) {
+        currentIndex = idx;
+        const s = slides[idx];
+        if (imgEl) imgEl.src = s.img;
+        if (iconEl) iconEl.innerHTML = `<i class="bi ${s.icon}"></i>`;
+        if (titleEl) titleEl.textContent = s.title;
+        if (descEl) descEl.textContent = s.desc;
+        dots.forEach((d, i) => {
+          if (i === idx) d.classList.add('active');
+          else d.classList.remove('active');
+        });
+      }
+
+      dots.forEach((dot, idx) => {
+        dot.addEventListener('click', () => updateSlide(idx));
+      });
+
+      setInterval(() => {
+        const next = (currentIndex + 1) % slides.length;
+        updateSlide(next);
+      }, 5000);
+    })();
+  </script>
+
+  <!-- Anime.js Engine & Custom Physics Animations -->
+  <script src="assets/anime.min.js"></script>
+  <script src="animations.js"></script>
+
+  <!-- Core App JS -->
+  <script src="app.js"></script>
+</body>
+</html>
