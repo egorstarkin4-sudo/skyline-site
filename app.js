@@ -258,14 +258,9 @@ async function fetchAndRenderProfile() {
         if (prof.mc_nickname) currentUser.user_metadata.mc_nickname = prof.mc_nickname;
       }
 
-      // Check admin status in public.admins table
-      const isMasterAdmin = (email && (email.toLowerCase() === 'gorwok.h@yandex.ru' || email.toLowerCase() === 'fakeface52@mail.ru'));
-      let isAdmin = isMasterAdmin;
-      if (!isAdmin) {
-        const { data: adminRow } = await supabaseClient.from('admins').select('user_id').eq('user_id', currentUser.id).maybeSingle();
-        if (adminRow && adminRow.user_id) isAdmin = true;
-      }
-      currentUser._isAdmin = isAdmin;
+      // Check admin status via secure RPC
+      const { data: isServerAdmin } = await supabaseClient.rpc('is_admin');
+      currentUser._isAdmin = Boolean(isServerAdmin);
     } catch (err) {
       console.warn("Error fetching latest profile:", err);
     }
@@ -322,7 +317,7 @@ function renderProfileData() {
   }
 
   // Show admin generator box & HWID reset button strictly for admin
-  const isAdmin = email === 'gorwok.h@yandex.ru' || email === 'fakeface52@mail.ru' || currentUser.user_metadata?.role === 'Admin' || currentUser._isAdmin === true;
+  const isAdmin = currentUser._isAdmin === true || currentUser.user_metadata?.role === 'Admin';
   if (adminGenBox) {
     adminGenBox.style.display = isAdmin ? 'block' : 'none';
   }
@@ -338,12 +333,23 @@ function renderProfileData() {
 }
 
 // --------------------------------------------------------------------------
-// Login Handler
+// Login Handler (with anti-brute-force & rate-limiting protection)
 // --------------------------------------------------------------------------
+let loginAttemptsCount = 0;
+let loginLockoutExpiresAt = 0;
+
 if (formLogin) {
   formLogin.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearAlert(authAlert);
+
+    const now = Date.now();
+    if (now < loginLockoutExpiresAt) {
+      const waitSec = Math.ceil((loginLockoutExpiresAt - now) / 1000);
+      showAlert(authAlert, `Слишком много попыток. Подождите ${waitSec} сек.`, 'error');
+      return;
+    }
+
     const loginInput = document.getElementById('login-email').value.trim();
     const password = document.getElementById('login-password').value;
     const submitBtn = document.getElementById('login-submit-btn');
@@ -370,14 +376,12 @@ if (formLogin) {
         // If user entered nickname instead of email, look up their email in database
         if (!loginInput.includes('@')) {
           try {
-            const { data: userProfiles, error: pErr } = await supabaseClient
-              .from('profiles')
-              .select('email')
-              .ilike('mc_nickname', loginInput.trim())
-              .limit(1);
+            const { data: foundEmail, error: rpcErr } = await supabaseClient.rpc('get_email_by_nickname', {
+              p_nickname: loginInput.trim()
+            });
 
-            if (userProfiles && userProfiles.length > 0 && userProfiles[0].email) {
-              targetEmail = userProfiles[0].email;
+            if (foundEmail) {
+              targetEmail = foundEmail;
             } else {
               showAlert(authAlert, window.getLangString('auth_err_invalid_login'), 'error');
               submitBtn.disabled = false;
@@ -395,6 +399,10 @@ if (formLogin) {
         });
 
         if (error) {
+          loginAttemptsCount++;
+          if (loginAttemptsCount >= 5) {
+            loginLockoutExpiresAt = Date.now() + 15000;
+          }
           let userMsg = error.message;
           if (error.message.includes('Invalid login') || error.message.includes('Invalid login credentials')) {
             userMsg = window.getLangString('auth_err_invalid_login');
@@ -403,6 +411,7 @@ if (formLogin) {
           }
           showAlert(authAlert, userMsg, 'error');
         } else {
+          loginAttemptsCount = 0;
           showAlert(authAlert, window.getLangString('auth_success_login'), 'success');
 
           setTimeout(() => {
@@ -943,14 +952,9 @@ function initStandaloneProfilePage() {
           if (prof.subscription_active !== undefined) rawSubActive = prof.subscription_active;
         }
 
-        // Check admin status in public.admins table
-        const isMaster = (email && (email.toLowerCase() === 'gorwok.h@yandex.ru' || email.toLowerCase() === 'fakeface52@mail.ru'));
-        let isAdm = isMaster;
-        if (!isAdm) {
-          const { data: adminRow } = await supabaseClient.from('admins').select('user_id').eq('user_id', user.id).maybeSingle();
-          if (adminRow && adminRow.user_id) isAdm = true;
-        }
-        if (isAdm) {
+        // Check admin status via secure RPC
+        const { data: isServerAdmin } = await supabaseClient.rpc('is_admin');
+        if (isServerAdmin) {
           prof = prof || {};
           prof.is_admin = true;
         }
@@ -1025,9 +1029,9 @@ function initStandaloneProfilePage() {
     }
 
     const btnAdminPanel = document.getElementById('btnAdminPanel');
-    const isAdmin = (email && (email.toLowerCase() === 'gorwok.h@yandex.ru' || email.toLowerCase() === 'fakeface52@mail.ru')) || 
+    const isAdmin = (prof && (prof.is_admin === true || prof.is_admin === 'true' || prof.role === 'Admin')) || 
                     user.user_metadata?.role === 'Admin' || 
-                    (prof && (prof.is_admin === true || prof.is_admin === 'true' || prof.role === 'Admin'));
+                    currentUser?._isAdmin === true;
     if (btnAdminPanel) btnAdminPanel.style.display = isAdmin ? 'inline-flex' : 'none';
     if (adminGenBox) adminGenBox.style.display = isAdmin ? 'block' : 'none';
     if (btnResetHwid) btnResetHwid.style.display = isAdmin ? 'inline-flex' : 'none';

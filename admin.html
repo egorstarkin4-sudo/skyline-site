@@ -4,7 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Админ-панель управления Skyline — управление пользователями, подписками и статусом лаунчера.">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Content-Security-Policy" content="frame-ancestors 'none';">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Skyline | Админ-панель</title>
+  
+  <!-- Anti-Clickjacking Frame Buster -->
+  <script>
+    if (window.top !== window.self) {
+      window.top.location = window.self.location;
+    }
+  </script>
   
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="assets/logo.png">
@@ -550,23 +560,13 @@
         if (userErr || !user) { showDenied(); return; }
 
         currentAdminUser = user;
-        const email = user.email ? user.email.trim().toLowerCase() : '';
-        isMasterAdmin = (email === 'gorwok.h@yandex.ru' || email === 'fakeface52@mail.ru');
 
-        let isAdmin = isMasterAdmin;
-        if (!isAdmin) {
-          const { data: adminRow } = await sb
-            .from('admins')
-            .select('user_id')
-            .eq('user_id', user.id)
-            .maybeSingle();
+        // Strict server-side check via RPC functions
+        const { data: isAdm, error: admErr } = await sb.rpc('is_admin');
+        if (admErr || !isAdm) { showDenied(); return; }
 
-          if (adminRow && adminRow.user_id) {
-            isAdmin = true;
-          }
-        }
-
-        if (!isAdmin) { showDenied(); return; }
+        const { data: isMaster } = await sb.rpc('is_master_admin');
+        isMasterAdmin = Boolean(isMaster);
 
         showPanel();
       } catch (err) {
@@ -630,7 +630,7 @@
           const uidVal = (u.uid != null && u.uid !== '') ? `#${u.uid}` : '—';
           const nick = u.mc_nickname || u.email?.split('@')[0] || t('prof_player');
           const email = (u.email || '—').trim().toLowerCase();
-          const isOwner = email === 'gorwok.h@yandex.ru' || email === 'fakeface52@mail.ru';
+          const isOwner = Boolean(u.is_master);
           const isBanned = !isOwner && (u.subscription_until === 'BANNED' || u.hwid === 'BANNED');
           const isAdminUser = isOwner || (u.is_admin === true || u.is_admin === 'true');
           
@@ -807,9 +807,7 @@
 
       function isTargetUserMaster(id) {
         const u = allUsers.find(x => x.id === id);
-        if (!u || !u.email) return false;
-        const em = u.email.trim().toLowerCase();
-        return em === 'gorwok.h@yandex.ru' || em === 'fakeface52@mail.ru';
+        return Boolean(u && u.is_master);
       }
 
       window.revokeSub = (id, encNick) => {
